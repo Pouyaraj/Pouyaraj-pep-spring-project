@@ -36,4 +36,8 @@ public class AccountService {
         }
         throw new IllegalArgumentException("Invalid username or password.");
     }
+
+        public Optional<Account> findById(Integer id) {
+            return accountRepository.findById(id); 
+        }
 }

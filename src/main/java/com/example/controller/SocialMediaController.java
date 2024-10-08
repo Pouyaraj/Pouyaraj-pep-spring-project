@@ -1,29 +1,25 @@
 package com.example.controller;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.entity.Account;
+import com.example.entity.Message;
 import com.example.service.AccountService;
+import com.example.service.MessageService;
 
-
-/**
- * TODO: You will need to write your own endpoints and handlers for your controller using Spring. The endpoints you will need can be
- * found in readme.md as well as the test cases. You be required to use the @GET/POST/PUT/DELETE/etc Mapping annotations
- * where applicable as well as the @ResponseBody and @PathVariable annotations. You should
- * refer to prior mini-project labs and lecture materials for guidance on how a controller may be built.
- */
-
- @RestController
+@RestController
 public class SocialMediaController {
 
     private final AccountService accountService;
+    private final MessageService messageService; // Add MessageService
 
     @Autowired
-    public SocialMediaController(AccountService accountService) {
+    public SocialMediaController(AccountService accountService, MessageService messageService) {
         this.accountService = accountService;
+        this.messageService = messageService; // Initialize MessageService
     }
 
     @PostMapping("/register")
@@ -53,6 +49,23 @@ public class SocialMediaController {
             return ResponseEntity.ok(verifiedAccount);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Invalid username or password.");
+        }
+    }
+
+    @PostMapping("/messages") // New endpoint for creating messages
+    public ResponseEntity<?> createMessage(@RequestBody Message message) {
+        // Validate message text
+        if (message.getMessageText() == null || message.getMessageText().trim().isEmpty() || 
+            message.getMessageText().length() > 255) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid message text.");
+        }
+
+        try {
+            // Create and persist the message
+            Message savedMessage = messageService.createMessage(message);
+            return ResponseEntity.ok(savedMessage); // Successful response
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }
