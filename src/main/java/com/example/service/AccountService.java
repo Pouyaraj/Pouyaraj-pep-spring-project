@@ -28,4 +28,12 @@ public class AccountService {
         // Save the new account to the database
         return accountRepository.save(account);
     }
+
+    public Account verifyLogin(Account account) {
+        Optional<Account> existingAccount = accountRepository.findByUsername(account.getUsername());
+        if (existingAccount.isPresent() && existingAccount.get().getPassword().equals(account.getPassword())) {
+            return existingAccount.get();
+        }
+        throw new IllegalArgumentException("Invalid username or password.");
+    }
 }

@@ -41,4 +41,18 @@ public class SocialMediaController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists.");
         }
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Account account) {
+        if (account.getUsername() == null || account.getPassword() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Invalid credentials.");
+        }
+
+        try {
+            Account verifiedAccount = accountService.verifyLogin(account);
+            return ResponseEntity.ok(verifiedAccount);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Invalid username or password.");
+        }
+    }
 }
