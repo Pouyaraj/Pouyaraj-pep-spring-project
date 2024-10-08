@@ -49,7 +49,7 @@ public class SocialMediaController {
         }
 
         try {
-            Account verifiedAccount = accountService.verifyLogin(account);
+            Account verifiedAccount = accountService.login(account);
             return ResponseEntity.ok(verifiedAccount);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Invalid username or password.");
