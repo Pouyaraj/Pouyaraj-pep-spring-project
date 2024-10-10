@@ -1,5 +1,7 @@
 package com.example.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +43,7 @@ public class SocialMediaController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Account account) {
         if (account.getUsername() == null || account.getPassword() == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Invalid credentials.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized.");
         }
 
         try {
@@ -61,11 +63,16 @@ public class SocialMediaController {
         }
 
         try {
-            // Create and persist the message
             Message savedMessage = messageService.createMessage(message);
-            return ResponseEntity.ok(savedMessage); // Successful response
+            return ResponseEntity.ok(savedMessage);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/messages")
+    public ResponseEntity<List<Message>> getAllMessages() {
+        List<Message> messages = messageService.getAllMessages();
+        return ResponseEntity.ok(messages);
     }
 }
