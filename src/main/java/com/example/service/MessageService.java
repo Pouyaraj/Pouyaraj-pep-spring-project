@@ -35,4 +35,8 @@ public class MessageService {
     public List<Message> getAllMessages() {
         return messageRepository.findAll();
     }
+
+    public int deleteMessage(Integer messageId) {
+        return messageRepository.deleteMessageById(messageId);
+    }
 }
