@@ -54,7 +54,7 @@ public class SocialMediaController {
         }
     }
 
-    @PostMapping("/messages") // New endpoint for creating messages
+    @PostMapping("/messages")
     public ResponseEntity<?> createMessage(@RequestBody Message message) {
         // Validate message text
         if (message.getMessageText() == null || message.getMessageText().trim().isEmpty() || 
@@ -74,6 +74,12 @@ public class SocialMediaController {
     public ResponseEntity<List<Message>> getAllMessages() {
         List<Message> messages = messageService.getAllMessages();
         return ResponseEntity.ok(messages);
+    }
+
+    @GetMapping("/messages/{messageId}")
+    public ResponseEntity<Message> getMessageById(@PathVariable Integer messageId) {
+        Message message = messageService.getMessageById(messageId);
+        return ResponseEntity.ok(message);
     }
 
     @DeleteMapping("/messages/{messageId}")
