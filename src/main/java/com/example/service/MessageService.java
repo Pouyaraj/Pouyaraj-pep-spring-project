@@ -43,4 +43,19 @@ public class MessageService {
     public int deleteMessage(Integer messageId) {
         return messageRepository.deleteMessageById(messageId);
     }
+
+    public int updateMessage(Integer messageId, String newMessageText) {
+        Optional<Message> existingMessage = messageRepository.findById(messageId);
+        if (!existingMessage.isPresent()) {
+            throw new IllegalArgumentException("Message with the specified ID does not exist.");
+        }
+    
+        return messageRepository.updateMessageText(messageId, newMessageText);
+    }
+
+    public List<Message> getMessagesByAccountId(Integer accountId) {
+        return messageRepository.findAllByPostedBy(accountId);
+    }
+    
+    
 }

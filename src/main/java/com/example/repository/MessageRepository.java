@@ -18,6 +18,12 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
     @Query("DELETE FROM Message m WHERE m.messageId = :messageId")
     int deleteMessageById(Integer messageId);
     
-    @Query("SELECT m FROM Message m WHERE m.postedBy = :postedBy")
-    List<Message> findAllByPostedBy(Integer postedBy);
+    @Transactional
+    @Modifying
+    @Query("UPDATE Message m SET m.messageText = :newMessageText WHERE m.messageId = :messageId")
+    int updateMessageText(Integer messageId, String newMessageText);
+
+    @Query("SELECT m FROM Message m WHERE m.postedBy = :accountId")
+    List<Message> findAllByPostedBy(Integer accountId);
+
 }

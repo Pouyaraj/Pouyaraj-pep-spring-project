@@ -16,41 +16,40 @@ import com.example.service.MessageService;
 public class SocialMediaController {
 
     private final AccountService accountService;
-    private final MessageService messageService; // Add MessageService
+    private final MessageService messageService; 
 
     @Autowired
     public SocialMediaController(AccountService accountService, MessageService messageService) {
         this.accountService = accountService;
-        this.messageService = messageService; // Initialize MessageService
+        this.messageService = messageService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Account account) {
-        // Check for blank username or password less than 4 characters
         if (account.getUsername() == null || account.getUsername().trim().isEmpty() || 
             account.getPassword() == null || account.getPassword().length() < 4) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid username or password.");
+            return ResponseEntity.status(400).body("Error.");
         }
 
         try {
             Account savedAccount = accountService.register(account);
             return ResponseEntity.ok(savedAccount);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists.");
+            return ResponseEntity.status(409).body("Duplicate username.");
         }
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Account account) {
         if (account.getUsername() == null || account.getPassword() == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized.");
+            return ResponseEntity.status(401).body("Unauthorized.");
         }
 
         try {
             Account verifiedAccount = accountService.login(account);
             return ResponseEntity.ok(verifiedAccount);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Invalid username or password.");
+            return ResponseEntity.status(401).body("Error.");
         }
     }
 
@@ -59,14 +58,14 @@ public class SocialMediaController {
         // Validate message text
         if (message.getMessageText() == null || message.getMessageText().trim().isEmpty() || 
             message.getMessageText().length() > 255) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid message text.");
+            return ResponseEntity.status(400).body("Invalid message text.");
         }
 
         try {
             Message savedMessage = messageService.createMessage(message);
             return ResponseEntity.ok(savedMessage);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 
@@ -92,4 +91,33 @@ public class SocialMediaController {
             return ResponseEntity.ok().build();
         }
     }
+
+    @PatchMapping("/messages/{messageId}")
+    public ResponseEntity<?> updateMessage( @PathVariable Integer messageId, @RequestBody Message message) {
+        
+        if (message.getMessageText() == null || 
+            message.getMessageText().trim().isEmpty() || 
+            message.getMessageText().length() > 255) {
+            return ResponseEntity.status(400).body("Invalid message text.");
+        }
+
+        try {
+            int rowsUpdated = messageService.updateMessage(messageId, message.getMessageText());
+            if (rowsUpdated == 1) {
+                return ResponseEntity.ok(rowsUpdated);
+            } else {
+                return ResponseEntity.status(400).body("Message update failed.");
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/accounts/{accountId}/messages")
+    public ResponseEntity<List<Message>> getMessagesByAccountId(@PathVariable Integer accountId) {
+        List<Message> messages = messageService.getMessagesByAccountId(accountId);
+        return ResponseEntity.ok(messages);
+    }
+
+    
 }
